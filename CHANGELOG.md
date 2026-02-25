@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.0.3] - 2026-02-25
+
+### Changed
+
+- CI: upgrade actions/checkout v4 → v6 (eliminates git default branch hint)
+- CI: disable Go module cache (zero dependencies, no go.sum)
+
 ## [v1.0.2] - 2026-02-25
 
 ### Changed
