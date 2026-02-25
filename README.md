@@ -28,25 +28,38 @@ flux provides a complete scheduling engine for flashcard applications: review sc
 go get github.com/sky-flux/flux
 ```
 
+Create a card, review it multiple times, and watch the scheduling adapt:
+
 ```go
-package main
+s, _ := flux.NewScheduler(flux.SchedulerConfig{DesiredRetention: 0.9})
+card := flux.NewCard(1)
+now := time.Now()
 
-import (
-	"fmt"
-	"time"
+// First review — card moves through Learning steps
+card, _ = s.ReviewCard(card, flux.Good, now)
+fmt.Println(card.State) // Learning (one more step)
 
-	"github.com/sky-flux/flux"
-)
+// Second review — graduates to Review
+card, _ = s.ReviewCard(card, flux.Good, card.Due)
+fmt.Println(card.State) // Review
+fmt.Println(card.Due)   // ~2 days from now
 
-func main() {
-	s, _ := flux.NewScheduler(flux.SchedulerConfig{})
-	card := flux.NewCard(1)
-	now := time.Now()
+// Third review — interval grows with each successful recall
+card, _ = s.ReviewCard(card, flux.Good, card.Due)
+fmt.Println(card.Due)   // ~10 days from now
 
-	card, _ = s.ReviewCard(card, flux.Good, now)
-	fmt.Printf("Next due: %s\n", card.Due.Format(time.DateTime))
+// Check recall probability at any point
+r := s.Retrievability(card, card.Due)
+fmt.Printf("%.0f%%\n", r*100) // ~90% (matches DesiredRetention)
+
+// Preview all four rating outcomes before committing
+preview := s.PreviewCard(card, card.Due)
+for _, rating := range []flux.Rating{flux.Again, flux.Hard, flux.Good, flux.Easy} {
+    fmt.Printf("%s → %s\n", rating, preview[rating].Due)
 }
 ```
+
+See [`examples/`](examples/) for complete runnable programs covering the basic lifecycle, parameter optimization, and review log rescheduling.
 
 ## API Overview
 
@@ -122,15 +135,24 @@ The `optimizer` sub-package trains FSRS parameters from real review history and 
 ```go
 import "github.com/sky-flux/flux/optimizer"
 
+// Collect review logs from your application (e.g. from a database).
+// Each log records which card was reviewed, the rating, and when.
+logs := []flux.ReviewLog{
+    {CardID: 1, Rating: flux.Good, ReviewDatetime: day1},
+    {CardID: 1, Rating: flux.Good, ReviewDatetime: day3},
+    // ... hundreds or thousands of real reviews
+}
+
 opt := optimizer.NewOptimizer(optimizer.OptimizerConfig{})
 
-// Train parameters from review logs
+// Train personalized parameters from review history
 params, err := opt.ComputeOptimalParameters(ctx, logs)
 
-// Evaluate loss for a parameter set
-loss := opt.ComputeBatchLoss(params, logs)
+// Use the optimized parameters in a new scheduler
+s, _ := flux.NewScheduler(flux.SchedulerConfig{Parameters: params})
 
-// Find the retention target that minimizes review cost
+// Optionally: find the retention target that minimizes total review cost.
+// Requires ReviewDuration to be set on each log.
 retention, err := opt.ComputeOptimalRetention(ctx, params, logs)
 ```
 
@@ -158,6 +180,16 @@ Benchmarks run on Apple M-series silicon. All targets met.
 ## Alignment with py-fsrs
 
 flux is a line-by-line port of the reference [py-fsrs](https://github.com/open-spaced-repetition/py-fsrs) Python implementation. All 21 FSRS v6 parameters, the memory state equations, the stability/difficulty update formulas, and the interval calculation logic match the Python reference. The test suite validates output parity against py-fsrs for the same inputs and parameter sets.
+
+## Examples
+
+The [`examples/`](examples/) directory contains complete runnable programs:
+
+| Example | Description | Run |
+|---------|-------------|-----|
+| [`basic`](examples/basic/) | Card creation, review loop, preview | `go run ./examples/basic/` |
+| [`optimizer`](examples/optimizer/) | Parameter training, optimal retention | `go run ./examples/optimizer/` |
+| [`reschedule`](examples/reschedule/) | Replay review logs to rebuild state | `go run ./examples/reschedule/` |
 
 ## Contributing
 

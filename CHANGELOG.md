@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v0.9.2] - 2026-02-25
+
+### Changed
+
+- Expanded README Quick Start with full card lifecycle (multi-review, state transitions, retrievability, preview)
+- Enhanced Optimizer section with ReviewLog construction guidance and end-to-end workflow
+- Added Examples section linking to all three runnable programs
+
 ## [v0.9.1] - 2026-02-25
 
 ### Fixed
