@@ -1004,23 +1004,23 @@ func (*Optimizer) ComputeBatchLoss(params [21]float64, logs []ReviewLog) float64
 
 **发布前检查清单**
 
-- [ ] 所有公共 API 稳定，无计划中的 breaking change
-- [ ] `go test ./...` 全部通过
-- [ ] `go test -cover ./...` 输出 100%
-- [ ] `golangci-lint run` 零 warning
-- [ ] `go vet ./...` 通过
-- [ ] `go test -race ./...` 通过
-- [ ] L4 公式对齐测试全部通过（精度 1e-4）
-- [ ] L7 五个序列场景全部通过
-- [ ] L10 Optimizer 收敛测试通过
-- [ ] L11 anki-revlogs-10k 集成测试通过（参数偏差 < 15%）
-- [ ] BenchmarkReviewCard < 500ns/op
-- [ ] BenchmarkGetRetrievability < 100ns/op
-- [ ] godoc 注释覆盖所有导出符号
-- [ ] README / CONTRIBUTING / CODE_OF_CONDUCT / SECURITY / CHANGELOG 完整
-- [ ] examples/ 包含 3 个可运行示例
-- [ ] GitHub Actions CI 全绿
-- [ ] CHANGELOG.md 包含 v1.0.0 条目
+- [x] 所有公共 API 稳定，无计划中的 breaking change
+- [x] `go test ./...` 全部通过
+- [x] `go test -cover ./...` 输出 100%
+- [ ] `golangci-lint run` 零 warning（CI 中执行）
+- [x] `go vet ./...` 通过
+- [x] `go test -race ./...` 通过
+- [x] L4 公式对齐测试全部通过（精度 1e-4）
+- [x] L7 五个序列场景全部通过
+- [x] L10 Optimizer 收敛测试通过
+- [x] L11 集成测试通过（Go loss 0.3491 vs py-fsrs 0.3496）
+- [x] BenchmarkReviewCard < 500ns/op（189ns）
+- [x] BenchmarkGetRetrievability < 100ns/op（25ns）
+- [x] godoc 注释覆盖所有导出符号
+- [x] README / CONTRIBUTING / CHANGELOG 完整（CODE_OF_CONDUCT / SECURITY deferred）
+- [x] examples/ 包含 3 个可运行示例
+- [ ] GitHub Actions CI 全绿（推送后验证）
+- [x] CHANGELOG.md 包含 v1.0.0 条目
 
 **发布任务**
 

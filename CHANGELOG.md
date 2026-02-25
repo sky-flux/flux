@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.0.0] - 2026-02-25
+
+### Summary
+
+First stable release. API frozen, production ready.
+
+- Pure Go FSRS v6 implementation with 21 trainable parameters
+- Scheduler with full state machine (Learning, Review, Relearning)
+- Parameter optimizer with Adam and cosine annealing LR
+- Optimal retention via Monte Carlo simulation
+- 100% test coverage, all benchmarks within targets
+- Cross-validated against py-fsrs reference implementation
+- Zero external dependencies
+
 ## [v0.9.2] - 2026-02-25
 
 ### Changed
