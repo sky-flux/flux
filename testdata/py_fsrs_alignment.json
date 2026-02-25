@@ -1,0 +1,165 @@
+{
+  "generator": "py-fsrs",
+  "parameters": "default",
+  "desired_retention": 0.9,
+  "enable_fuzz": false,
+  "scenarios": [
+    {
+      "name": "good_good_good",
+      "steps": [
+        {
+          "rating": "Good",
+          "review_time": "2025-06-15T10:00:00+00:00",
+          "card": {
+            "state": "Learning",
+            "step": 1,
+            "stability": 2.3065,
+            "difficulty": 2.118104,
+            "due": "2025-06-15T10:10:00+00:00"
+          }
+        },
+        {
+          "rating": "Good",
+          "review_time": "2025-06-15T10:10:00+00:00",
+          "card": {
+            "state": "Review",
+            "step": null,
+            "stability": 2.3065,
+            "difficulty": 2.111214,
+            "due": "2025-06-17T10:10:00+00:00"
+          }
+        },
+        {
+          "rating": "Good",
+          "review_time": "2025-06-18T10:10:00+00:00",
+          "card": {
+            "state": "Review",
+            "step": null,
+            "stability": 13.83584,
+            "difficulty": 2.104331,
+            "due": "2025-07-02T10:10:00+00:00"
+          }
+        }
+      ]
+    },
+    {
+      "name": "again_good_good_sameday",
+      "steps": [
+        {
+          "rating": "Again",
+          "review_time": "2025-06-15T10:00:00+00:00",
+          "card": {
+            "state": "Learning",
+            "step": 0,
+            "stability": 0.212,
+            "difficulty": 6.4133,
+            "due": "2025-06-15T10:01:00+00:00"
+          }
+        },
+        {
+          "rating": "Good",
+          "review_time": "2025-06-15T10:05:00+00:00",
+          "card": {
+            "state": "Learning",
+            "step": 1,
+            "stability": 0.246689,
+            "difficulty": 6.402115,
+            "due": "2025-06-15T10:15:00+00:00"
+          }
+        },
+        {
+          "rating": "Good",
+          "review_time": "2025-06-15T10:15:00+00:00",
+          "card": {
+            "state": "Review",
+            "step": null,
+            "stability": 0.284206,
+            "difficulty": 6.390941,
+            "due": "2025-06-16T10:15:00+00:00"
+          }
+        }
+      ]
+    },
+    {
+      "name": "good_good_again_relearning_good",
+      "steps": [
+        {
+          "rating": "Good",
+          "review_time": "2025-06-15T10:00:00+00:00",
+          "card": {
+            "state": "Learning",
+            "step": 1,
+            "stability": 2.3065,
+            "difficulty": 2.118104,
+            "due": "2025-06-15T10:10:00+00:00"
+          }
+        },
+        {
+          "rating": "Good",
+          "review_time": "2025-06-15T10:10:00+00:00",
+          "card": {
+            "state": "Review",
+            "step": null,
+            "stability": 2.3065,
+            "difficulty": 2.111214,
+            "due": "2025-06-17T10:10:00+00:00"
+          }
+        },
+        {
+          "rating": "Again",
+          "review_time": "2025-06-20T10:10:00+00:00",
+          "card": {
+            "state": "Relearning",
+            "step": 0,
+            "stability": 0.682735,
+            "difficulty": 7.392238,
+            "due": "2025-06-20T10:20:00+00:00"
+          }
+        },
+        {
+          "rating": "Good",
+          "review_time": "2025-06-20T10:20:00+00:00",
+          "card": {
+            "state": "Review",
+            "step": null,
+            "stability": 0.735606,
+            "difficulty": 7.380074,
+            "due": "2025-06-21T10:20:00+00:00"
+          }
+        }
+      ]
+    },
+    {
+      "name": "easy_direct_review",
+      "steps": [
+        {
+          "rating": "Easy",
+          "review_time": "2025-06-15T10:00:00+00:00",
+          "card": {
+            "state": "Review",
+            "step": null,
+            "stability": 8.2956,
+            "difficulty": 1.0,
+            "due": "2025-06-23T10:00:00+00:00"
+          }
+        }
+      ]
+    },
+    {
+      "name": "hard_from_new",
+      "steps": [
+        {
+          "rating": "Hard",
+          "review_time": "2025-06-15T10:00:00+00:00",
+          "card": {
+            "state": "Learning",
+            "step": 0,
+            "stability": 1.2931,
+            "difficulty": 5.112171,
+            "due": "2025-06-15T10:05:30+00:00"
+          }
+        }
+      ]
+    }
+  ]
+}
