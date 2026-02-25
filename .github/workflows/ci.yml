@@ -23,10 +23,8 @@ jobs:
       - name: Vet
         run: go vet ./...
 
-      # golangci-lint v1.64 is built with Go 1.24 and does not support Go 1.26 yet.
-      # Re-enable once a compatible release is available.
-      # - name: Lint
-      #   uses: golangci/golangci-lint-action@v6
+      - name: Lint
+        uses: golangci/golangci-lint-action@v9
 
       - name: Test
         run: go test ./... -cover -coverprofile=coverage.out -race

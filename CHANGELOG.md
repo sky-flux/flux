@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.0.2] - 2026-02-25
+
+### Changed
+
+- CI: upgrade golangci-lint-action v6 → v9 (golangci-lint v1 → v2, Go 1.26 compatible)
+
 ## [v1.0.1] - 2026-02-25
 
 ### Fixed
