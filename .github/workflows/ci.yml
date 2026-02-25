@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.26', 'stable']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v6
+
+      - name: Test
+        run: go test ./... -cover -coverprofile=coverage.out -race
+
+      - name: Coverage gate
+        run: |
+          # Verify 100% coverage for library packages (exclude examples).
+          fail=0
+          for pkg in . ./optimizer/; do
+            line=$(go test -cover "$pkg" 2>&1 | tail -1)
+            echo "$line"
+            if ! echo "$line" | grep -q "100.0%"; then
+              echo "FAIL: $pkg coverage is below 100%"
+              fail=1
+            fi
+          done
+          [ "$fail" -eq 0 ] && echo "All coverage gates passed." || exit 1
+
+      - name: Integration tests
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: go test -tags integration ./optimizer/ -timeout 120s
