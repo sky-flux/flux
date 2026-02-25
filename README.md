@@ -1,0 +1,168 @@
+# flux
+
+[![CI](https://img.shields.io/github/actions/workflow/status/sky-flux/flux/ci.yml?branch=main&label=CI)](https://github.com/sky-flux/flux/actions)
+[![Coverage](https://img.shields.io/codecov/c/github/sky-flux/flux)](https://codecov.io/gh/sky-flux/flux)
+[![Go Report Card](https://goreportcard.com/badge/github.com/sky-flux/flux)](https://goreportcard.com/report/github.com/sky-flux/flux)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+Pure Go implementation of the **FSRS v6** spaced repetition algorithm. Zero dependencies outside the standard library.
+
+flux provides a complete scheduling engine for flashcard applications: review scheduling, memory state tracking, parameter optimization from review history, and optimal retention computation via Monte Carlo simulation.
+
+## Features
+
+- **FSRS v6 algorithm** -- full implementation of the latest Free Spaced Repetition Scheduler with 21 trainable parameters
+- **Zero dependencies** -- only the Go standard library
+- **Card lifecycle management** -- Learning, Review, and Relearning states with configurable step durations
+- **Parameter optimizer** -- mini-batch gradient descent with Adam and cosine annealing to train parameters from review logs
+- **Optimal retention** -- Monte Carlo simulation to find the retention target that minimizes total review cost
+- **Retrievability** -- compute recall probability for any card at any point in time
+- **Preview & reschedule** -- preview all rating outcomes before committing, or replay review logs to rebuild card state
+- **Interval fuzzing** -- optional randomization to spread reviews and avoid clustering
+- **JSON serialization** -- Card, Rating, State, Scheduler, and ReviewLog all implement JSON marshaling
+- **Deterministic & testable** -- fuzzing can be disabled for reproducible tests
+
+## Quick Start
+
+```bash
+go get github.com/sky-flux/flux
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/sky-flux/flux"
+)
+
+func main() {
+	s, _ := flux.NewScheduler(flux.SchedulerConfig{})
+	card := flux.NewCard(1)
+	now := time.Now()
+
+	card, _ = s.ReviewCard(card, flux.Good, now)
+	fmt.Printf("Next due: %s\n", card.Due.Format(time.DateTime))
+}
+```
+
+## API Overview
+
+### Core Types
+
+```go
+// Card holds the scheduling state for a single flashcard.
+type Card struct {
+    CardID     int64
+    State      State      // Learning, Review, or Relearning
+    Step       *int       // current learning/relearning step (nil in Review)
+    Stability  *float64   // memory stability in days (nil before first review)
+    Difficulty *float64   // item difficulty (nil before first review)
+    Due        time.Time
+    LastReview *time.Time
+}
+
+// Rating represents the user's recall assessment.
+type Rating int // Again=1, Hard=2, Good=3, Easy=4
+
+// State represents the learning stage of a card.
+type State int // Learning=1, Review=2, Relearning=3
+
+// ReviewLog records a single review event.
+type ReviewLog struct {
+    CardID         int64
+    Rating         Rating
+    ReviewDatetime time.Time
+    ReviewDuration *int // milliseconds, optional
+}
+```
+
+### Scheduler
+
+```go
+func NewScheduler(cfg SchedulerConfig) (*Scheduler, error)
+```
+
+| Method | Description |
+|--------|-------------|
+| `ReviewCard(card Card, rating Rating, now time.Time) (Card, ReviewLog)` | Process a review and return the updated card and log |
+| `PreviewCard(card Card, now time.Time) map[Rating]Card` | Preview outcomes for all four ratings |
+| `RescheduleCard(card Card, logs []ReviewLog) (Card, error)` | Replay review logs to rebuild card state |
+| `Retrievability(card Card, now time.Time) float64` | Compute recall probability at a given time |
+
+### SchedulerConfig
+
+```go
+type SchedulerConfig struct {
+    Parameters       [21]float64     // zero -> DefaultParameters
+    DesiredRetention float64         // zero -> 0.9
+    LearningSteps    []time.Duration // nil -> [1m, 10m]
+    RelearningSteps  []time.Duration // nil -> [10m]
+    MaximumInterval  int             // zero -> 36500 days
+    DisableFuzzing   bool            // zero -> false (fuzzing enabled)
+}
+```
+
+### Parameters
+
+```go
+var DefaultParameters [21]float64 // FSRS v6 defaults from py-fsrs
+var LowerBounds [21]float64
+var UpperBounds [21]float64
+
+func ValidateParameters(p [21]float64) error
+```
+
+## Optimizer
+
+The `optimizer` sub-package trains FSRS parameters from real review history and computes optimal retention targets.
+
+```go
+import "github.com/sky-flux/flux/optimizer"
+
+opt := optimizer.NewOptimizer(optimizer.OptimizerConfig{})
+
+// Train parameters from review logs
+params, err := opt.ComputeOptimalParameters(ctx, logs)
+
+// Evaluate loss for a parameter set
+loss := opt.ComputeBatchLoss(params, logs)
+
+// Find the retention target that minimizes review cost
+retention, err := opt.ComputeOptimalRetention(ctx, params, logs)
+```
+
+### OptimizerConfig
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `Epochs` | 5 | Training epochs |
+| `MiniBatchSize` | 512 | Reviews per mini-batch |
+| `LearningRate` | 0.04 | Initial Adam learning rate |
+| `MaxSeqLen` | 64 | Max reviews per card |
+
+## Performance
+
+Benchmarks run on Apple M-series silicon. All targets met.
+
+| Benchmark | Result | Target |
+|-----------|--------|--------|
+| ReviewCard | 182 ns/op | < 500 ns |
+| GetRetrievability | 26 ns/op | < 100 ns |
+| PreviewCard | 814 ns/op | < 2 us |
+| Optimize1000 | 0.50 s | < 2 s |
+| Optimize10000 | 4.61 s | < 15 s |
+
+## Alignment with py-fsrs
+
+flux is a line-by-line port of the reference [py-fsrs](https://github.com/open-spaced-repetition/py-fsrs) Python implementation. All 21 FSRS v6 parameters, the memory state equations, the stability/difficulty update formulas, and the interval calculation logic match the Python reference. The test suite validates output parity against py-fsrs for the same inputs and parameter sets.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
+
+## License
+
+[MIT](LICENSE)
