@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.0.1] - 2026-02-25
+
+### Fixed
+
+- CI: temporarily disable golangci-lint (v1.64 built with Go 1.24, incompatible with Go 1.26)
+- CI: add `fail-fast: false` to prevent matrix cancellation on partial failure
+
 ## [v1.0.0] - 2026-02-25
 
 ### Summary
