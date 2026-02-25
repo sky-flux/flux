@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v0.9.1] - 2026-02-25
+
+### Fixed
+
+- Added missing v0.9.0 entry to CHANGELOG
+- Updated flux.md specification checklist to reflect completed work
+- Fixed testdata file format references (parquet → json) in flux.md
+- Updated dependency description (removed gonum, stdlib only) in flux.md
+
+### Deferred
+
+- `CODE_OF_CONDUCT.md` and `SECURITY.md` deferred to v1.0.0 — project is pre-release with a single maintainer; community governance docs will be added when the project opens for external contributions
+
+## [v0.9.0] - 2026-02-25
+
+### Added
+
+- `.github/workflows/ci.yml` — CI with Go 1.26/stable matrix, vet, lint, race detection, 100% coverage gate, integration tests
+- `.github/workflows/release.yml` — Tag-triggered release workflow
+- `.github/ISSUE_TEMPLATE/bug_report.md` and `feature_request.md` — Issue templates
+- `.github/PULL_REQUEST_TEMPLATE.md` — PR template with testing checklist
+- `Makefile` with test, cover, lint, bench, vet, examples targets
+
 ## [v0.8.0] - 2026-02-25
 
 ### Added

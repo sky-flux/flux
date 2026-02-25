@@ -41,7 +41,7 @@ flux 是 FSRS v6 算法的纯 Go 实现，包含 Scheduler 和 Optimizer 两个�
 
 1. **算法精确**：逐公式对齐 py-fsrs v6 + fsrs4anki Wiki FSRS-6，精度 1e-4
 2. **零依赖 Scheduler**：仅依赖 Go 标准库（math, time, errors, encoding/json）
-3. **隔离 Optimizer**：子包 `flux/optimizer`，唯一外部依赖 gonum
+3. **隔离 Optimizer**：子包 `flux/optimizer`，仅依赖标准库（无需 gonum）
 4. **TDD 驱动**：测试先行，v1.0.0 发布时 100% 单元测试覆盖率
 5. **原生 API**：flux 只暴露自己的 API，不兼容 go-fsrs 的接口
 6. **Go 惯用风格**：实现标准接口（fmt.Stringer、json.Marshaler、encoding.TextMarshaler）；零值可用的配置结构体；包级哨兵错误（errors.Is）；方法命名不加 Get 前缀
@@ -415,7 +415,7 @@ cards:   card_id, note_id, deck_id
 decks:   deck_id, parent_id, preset_id
 ```
 
-用途：`testdata/anki_revlogs_sample.parquet`，集成测试对比 py-fsrs 优化结果。
+用途：`testdata/anki_revlogs_sample.json`，集成测试对比 py-fsrs 优化结果。
 
 ---
 
@@ -654,50 +654,50 @@ func (*Optimizer) ComputeBatchLoss(params [21]float64, logs []ReviewLog) float64
 
 **源码**
 
-- [ ] `doc.go` — 包级 godoc 注释
-- [ ] `rating.go` — Rating 枚举（Again=1..Easy=4），String()，IsValid()，MarshalJSON/UnmarshalJSON，MarshalText/UnmarshalText
-- [ ] `state.go` — State 枚举（Learning=1..Relearning=3），String()，MarshalJSON/UnmarshalJSON，MarshalText/UnmarshalText
-- [ ] `card.go` — Card 结构（含 JSON tags）、NewCard()、clone()、setStability/setDifficulty/setStep/clearStep
-- [ ] `review_log.go` — ReviewLog 结构（含 JSON tags）
-- [ ] `errors.go` — 包级哨兵错误（ErrInvalidRating、ErrInvalidParameters、ErrCardIDMismatch、ErrInsufficientData）
-- [ ] `parameters.go` — DefaultParameters [21]float64、LowerBounds、UpperBounds、ValidateParameters()
-- [ ] `algorithm.go` — 全部纯数学函数：
-  - [ ] newAlgo(p) → algo{w, decay, factor}
-  - [ ] retrievability(elapsedDays, stability) → float64
-  - [ ] initStability(rating) → float64
-  - [ ] initDifficulty(rating, clamp) → float64
-  - [ ] nextInterval(stability, desiredRetention, maxIvl) → int
-  - [ ] shortTermStability(stability, rating) → float64
-  - [ ] nextDifficulty(difficulty, rating) → float64
-  - [ ] nextStability(d, s, r, rating) → float64
-  - [ ] nextRecallStability(d, s, r, rating) → float64
-  - [ ] nextForgetStability(d, s, r) → float64
-  - [ ] clampS(s), clampD(d)
+- [x] `doc.go` — 包级 godoc 注释
+- [x] `rating.go` — Rating 枚举（Again=1..Easy=4），String()，IsValid()，MarshalJSON/UnmarshalJSON，MarshalText/UnmarshalText
+- [x] `state.go` — State 枚举（Learning=1..Relearning=3），String()，MarshalJSON/UnmarshalJSON，MarshalText/UnmarshalText
+- [x] `card.go` — Card 结构（含 JSON tags）、NewCard()、clone()、setStability/setDifficulty/setStep/clearStep
+- [x] `review_log.go` — ReviewLog 结构（含 JSON tags）
+- [x] `errors.go` — 包级哨兵错误（ErrInvalidRating、ErrInvalidParameters、ErrCardIDMismatch、ErrInsufficientData）
+- [x] `parameters.go` — DefaultParameters [21]float64、LowerBounds、UpperBounds、ValidateParameters()
+- [x] `algorithm.go` — 全部纯数学函数：
+  - [x] newAlgo(p) → algo{w, decay, factor}
+  - [x] retrievability(elapsedDays, stability) → float64
+  - [x] initStability(rating) → float64
+  - [x] initDifficulty(rating, clamp) → float64
+  - [x] nextInterval(stability, desiredRetention, maxIvl) → int
+  - [x] shortTermStability(stability, rating) → float64
+  - [x] nextDifficulty(difficulty, rating) → float64
+  - [x] nextStability(d, s, r, rating) → float64
+  - [x] nextRecallStability(d, s, r, rating) → float64
+  - [x] nextForgetStability(d, s, r) → float64
+  - [x] clampS(s), clampD(d)
 
 **测试（L1–L4）**
 
-- [ ] `rating_test.go` — 枚举值、String()、IsValid()、JSON/Text 往返序列化、非法值 Unmarshal → error（~12 用例）
-- [ ] `state_test.go` — 枚举值、String()、JSON/Text 往返序列化（~10 用例）
-- [ ] `card_test.go` — NewCard 初始状态、clone 深拷贝、指针独立性、JSON 往返（nil 字段 → null）（~14 用例）
-- [ ] `review_log_test.go` — 构造、字段访问、JSON 往返（omitempty 行为）（~6 用例）
-- [ ] `errors_test.go` — errors.Is 断言、错误消息前缀（~4 用例）
-- [ ] `parameters_test.go` — DefaultParameters 长度=21、ValidateParameters 正例+各越界（~8 用例）
-- [ ] `algorithm_test.go` — 每个数学函数 ≥ 4 用例 + 边界值（~40 用例）：
-  - [ ] initStability: 4 ratings → w[0..3]
-  - [ ] initDifficulty: 4 ratings clamp=true + 1 clamp=false
-  - [ ] retrievability: t=0→1.0, t=S→0.9, t>S, S=min
-  - [ ] shortTermStability: 4 ratings + SInc clamp 验证
-  - [ ] nextDifficulty: Again/Good/Easy + D=1/D=10 边界
-  - [ ] nextRecallStability: Hard(penalty)/Good/Easy(bonus) + R=0.9/R=0.5
-  - [ ] nextForgetStability: 正常 + min(long,short) 切换点
-  - [ ] nextInterval: 正常 + clamp 下限 + clamp 上限
+- [x] `rating_test.go` — 枚举值、String()、IsValid()、JSON/Text 往返序列化、非法值 Unmarshal → error（~12 用例）
+- [x] `state_test.go` — 枚举值、String()、JSON/Text 往返序列化（~10 用例）
+- [x] `card_test.go` — NewCard 初始状态、clone 深拷贝、指针独立性、JSON 往返（nil 字段 → null）（~14 用例）
+- [x] `review_log_test.go` — 构造、字段访问、JSON 往返（omitempty 行为）（~6 用例）
+- [x] `errors_test.go` — errors.Is 断言、错误消息前缀（~4 用例）
+- [x] `parameters_test.go` — DefaultParameters 长度=21、ValidateParameters 正例+各越界（~8 用例）
+- [x] `algorithm_test.go` — 每个数学函数 ≥ 4 用例 + 边界值（~40 用例）：
+  - [x] initStability: 4 ratings → w[0..3]
+  - [x] initDifficulty: 4 ratings clamp=true + 1 clamp=false
+  - [x] retrievability: t=0→1.0, t=S→0.9, t>S, S=min
+  - [x] shortTermStability: 4 ratings + SInc clamp 验证
+  - [x] nextDifficulty: Again/Good/Easy + D=1/D=10 边界
+  - [x] nextRecallStability: Hard(penalty)/Good/Easy(bonus) + R=0.9/R=0.5
+  - [x] nextForgetStability: 正常 + min(long,short) 切换点
+  - [x] nextInterval: 正常 + clamp 下限 + clamp 上限
 
 **工程**
 
-- [ ] `go.mod` — module github.com/sky-flux/flux, go 1.26
-- [ ] `.gitignore`
-- [ ] `LICENSE` — MIT 全文
-- [ ] `go test ./... -cover` — 100% 覆盖率
+- [x] `go.mod` — module github.com/sky-flux/flux, go 1.26
+- [x] `.gitignore`
+- [x] `LICENSE` — MIT 全文
+- [x] `go test ./... -cover` — 100% 覆盖率
 
 **交付标准**：`go test ./...` 全绿，覆盖率 100%，`go vet` 通过。
 
@@ -709,48 +709,48 @@ func (*Optimizer) ComputeBatchLoss(params [21]float64, logs []ReviewLog) float64
 
 **源码**
 
-- [ ] `fuzz.go` — fuzzRanges、fuzzRange()、applyFuzz()
-- [ ] `scheduler.go` — 全部 Scheduler 逻辑：
-  - [ ] SchedulerConfig 结构 + 零值默认填充（DisableFuzzing、nil slice 语义）
-  - [ ] NewScheduler(cfg) → (*Scheduler, error)（参数校验）
-  - [ ] ReviewCard(card, rating, now) → (Card, ReviewLog)
-    - [ ] Learning 状态：首次/同日/跨日 × Again/Hard/Good/Easy
-    - [ ] Review 状态：同日/跨日 × Again/Hard/Good/Easy
-    - [ ] Relearning 状态：同日/跨日 × Again/Hard/Good/Easy
-    - [ ] Fuzz 应用（仅 Review 状态）
-    - [ ] Due + LastReview 更新
-  - [ ] Retrievability(card, now) → float64
+- [x] `fuzz.go` — fuzzRanges、fuzzRange()、applyFuzz()
+- [x] `scheduler.go` — 全部 Scheduler 逻辑：
+  - [x] SchedulerConfig 结构 + 零值默认填充（DisableFuzzing、nil slice 语义）
+  - [x] NewScheduler(cfg) → (*Scheduler, error)（参数校验）
+  - [x] ReviewCard(card, rating, now) → (Card, ReviewLog)
+    - [x] Learning 状态：首次/同日/跨日 × Again/Hard/Good/Easy
+    - [x] Review 状态：同日/跨日 × Again/Hard/Good/Easy
+    - [x] Relearning 状态：同日/跨日 × Again/Hard/Good/Easy
+    - [x] Fuzz 应用（仅 Review 状态）
+    - [x] Due + LastReview 更新
+  - [x] Retrievability(card, now) → float64
 
 **测试（L5–L6）**
 
-- [ ] `fuzz_test.go` — ~10 用例：
-  - [ ] interval < 2.5 → 不 fuzz
-  - [ ] interval = 3 → fuzz range [2.5, 7) factor 0.15
-  - [ ] interval = 10 → 两段 factor
-  - [ ] interval = 50 → 三段 factor
-  - [ ] max_ivl clamp
-  - [ ] 固定种子输出可复现
-- [ ] `scheduler_test.go` — ~25 用例：
-  - [ ] NewScheduler 参数越界 → error
-  - [ ] NewScheduler 默认配置 → 正常
-  - [ ] Learning 首次 Again/Hard/Good/Easy → 验证 S, D, State, Step, Due
-  - [ ] Learning 同日复习 → shortTerm 分支
-  - [ ] Learning 跨日复习 → nextStability 分支
-  - [ ] Learning Good 最后一步 → Review
-  - [ ] Learning Easy → 直接 Review
-  - [ ] Learning Hard step=0 len=1 → 1.5x
-  - [ ] Learning Hard step=0 len≥2 → 平均值
-  - [ ] Learning empty steps → 直接 Review
-  - [ ] Learning step≥len → 直接 Review
-  - [ ] Review 跨日 Hard/Good/Easy → nextInterval
-  - [ ] Review 同日 → shortTerm
-  - [ ] Review Again → Relearning (step=0)
-  - [ ] Review Again + empty relearning_steps → nextInterval
-  - [ ] Relearning Again/Hard/Good/Easy（对称验证）
-  - [ ] DisableFuzzing=false + Review 状态 → interval 不同
-  - [ ] DisableFuzzing=true → interval 不变
-  - [ ] Retrievability LastReview=nil → 0
-  - [ ] Retrievability 正常值
+- [x] `fuzz_test.go` — ~10 用例：
+  - [x] interval < 2.5 → 不 fuzz
+  - [x] interval = 3 → fuzz range [2.5, 7) factor 0.15
+  - [x] interval = 10 → 两段 factor
+  - [x] interval = 50 → 三段 factor
+  - [x] max_ivl clamp
+  - [x] 固定种子输出可复现
+- [x] `scheduler_test.go` — ~25 用例：
+  - [x] NewScheduler 参数越界 → error
+  - [x] NewScheduler 默认配置 → 正常
+  - [x] Learning 首次 Again/Hard/Good/Easy → 验证 S, D, State, Step, Due
+  - [x] Learning 同日复习 → shortTerm 分支
+  - [x] Learning 跨日复习 → nextStability 分支
+  - [x] Learning Good 最后一步 → Review
+  - [x] Learning Easy → 直接 Review
+  - [x] Learning Hard step=0 len=1 → 1.5x
+  - [x] Learning Hard step=0 len≥2 → 平均值
+  - [x] Learning empty steps → 直接 Review
+  - [x] Learning step≥len → 直接 Review
+  - [x] Review 跨日 Hard/Good/Easy → nextInterval
+  - [x] Review 同日 → shortTerm
+  - [x] Review Again → Relearning (step=0)
+  - [x] Review Again + empty relearning_steps → nextInterval
+  - [x] Relearning Again/Hard/Good/Easy（对称验证）
+  - [x] DisableFuzzing=false + Review 状态 → interval 不同
+  - [x] DisableFuzzing=true → interval 不变
+  - [x] Retrievability LastReview=nil → 0
+  - [x] Retrievability 正常值
 
 **交付标准**：ReviewCard 可跑完整复习流程，覆盖率 100%。
 
@@ -762,31 +762,31 @@ func (*Optimizer) ComputeBatchLoss(params [21]float64, logs []ReviewLog) float64
 
 **源码**
 
-- [ ] `scheduler.go` 追加：
-  - [ ] PreviewCard(card, now) → map[Rating]Card
-  - [ ] RescheduleCard(card, logs) → (Card, error)
-  - [ ] MarshalJSON() → ([]byte, error)（实现 json.Marshaler）
-  - [ ] UnmarshalJSON(data) → error（实现 json.Unmarshaler，重建内部预计算状态）
+- [x] `scheduler.go` 追加：
+  - [x] PreviewCard(card, now) → map[Rating]Card
+  - [x] RescheduleCard(card, logs) → (Card, error)
+  - [x] MarshalJSON() → ([]byte, error)（实现 json.Marshaler）
+  - [x] UnmarshalJSON(data) → error（实现 json.Unmarshaler，重建内部预计算状态）
 
 **测试（L7–L8）**
 
-- [ ] `scheduler_test.go` 追加（~15 用例）：
-  - [ ] **Scenario 1**：NewCard → Good → 3d → Good → 7d → Good
-  - [ ] **Scenario 2**：NewCard → Again → 同日 Good → 同日 Good
-  - [ ] **Scenario 3**：NewCard → Good → Good → (Review) Again → Relearning → Good → Review
-  - [ ] **Scenario 4**：NewCard → Easy（直接跳 Review）
-  - [ ] **Scenario 5**：空 learning_steps → Hard 直接进 Review
-  - [ ] 每个 Scenario 逐步验证 (State, Step, S, D, Due) 对齐 py-fsrs 预期值
-  - [ ] PreviewCard 返回 4 个 key
-  - [ ] RescheduleCard 正常重放
-  - [ ] RescheduleCard CardID 不匹配 → errors.Is(err, ErrCardIDMismatch)
-  - [ ] json.Marshal → json.Unmarshal 往返一致（Scheduler 配置 + 内部状态）
-  - [ ] json.Unmarshal 畸形数据 → error
+- [x] `scheduler_test.go` 追加（~15 用例）：
+  - [x] **Scenario 1**：NewCard → Good → 3d → Good → 7d → Good
+  - [x] **Scenario 2**：NewCard → Again → 同日 Good → 同日 Good
+  - [x] **Scenario 3**：NewCard → Good → Good → (Review) Again → Relearning → Good → Review
+  - [x] **Scenario 4**：NewCard → Easy（直接跳 Review）
+  - [x] **Scenario 5**：空 learning_steps → Hard 直接进 Review
+  - [x] 每个 Scenario 逐步验证 (State, Step, S, D, Due) 对齐 py-fsrs 预期值
+  - [x] PreviewCard 返回 4 个 key
+  - [x] RescheduleCard 正常重放
+  - [x] RescheduleCard CardID 不匹配 → errors.Is(err, ErrCardIDMismatch)
+  - [x] json.Marshal → json.Unmarshal 往返一致（Scheduler 配置 + 内部状态）
+  - [x] json.Unmarshal 畸形数据 → error
 
 **测试数据**
 
-- [ ] `testdata/py_fsrs_alignment.json` — py-fsrs 运行 5 个 Scenario 的预期输出
-  - [ ] 生成脚本：`scripts/gen_alignment_data.py`
+- [x] `testdata/py_fsrs_alignment.json` — py-fsrs 运行 5 个 Scenario 的预期输出
+  - [x] 生成脚本：`scripts/gen_alignment_data.py`
 
 **交付标准**：5 个序列场景全部对齐 py-fsrs（精度 1e-4），覆盖率 100%。
 
@@ -798,43 +798,43 @@ func (*Optimizer) ComputeBatchLoss(params [21]float64, logs []ReviewLog) float64
 
 **源码**
 
-- [ ] `optimizer/dataset.go` — ReviewLog → 训练数据
-  - [ ] formatRevlogs(logs) → map[int64][]review（按 card_id 分组，组内按时间排序）
-  - [ ] countCrossDayReviews(data) → int
-- [ ] `optimizer/loss.go` — BCE + 数值梯度
-  - [ ] bceLoss(rPred, y) → float64
-  - [ ] computeBatchLoss(params, data) → float64
-  - [ ] numericalGradient(params, data) → [21]float64
-- [ ] `optimizer/adam.go` — Adam 优化器 + Cosine Annealing
-  - [ ] Adam 结构体：m, v [21]float64, β1, β2, ε, step
-  - [ ] NewAdam(lr) → *Adam
-  - [ ] Adam.Update(params, grads) → [21]float64
-  - [ ] CosineAnnealing 结构体
-  - [ ] NewCosineAnnealing(lrMax, tMax) → *CosineAnnealing
-  - [ ] CosineAnnealing.Step() → float64
+- [x] `optimizer/dataset.go` — ReviewLog → 训练数据
+  - [x] formatRevlogs(logs) → map[int64][]review（按 card_id 分组，组内按时间排序）
+  - [x] countCrossDayReviews(data) → int
+- [x] `optimizer/loss.go` — BCE + 数值梯度
+  - [x] bceLoss(rPred, y) → float64
+  - [x] computeBatchLoss(params, data) → float64
+  - [x] numericalGradient(params, data) → [21]float64
+- [x] `optimizer/adam.go` — Adam 优化器 + Cosine Annealing
+  - [x] Adam 结构体：m, v [21]float64, β1, β2, ε, step
+  - [x] NewAdam(lr) → *Adam
+  - [x] Adam.Update(params, grads) → [21]float64
+  - [x] CosineAnnealing 结构体
+  - [x] NewCosineAnnealing(lrMax, tMax) → *CosineAnnealing
+  - [x] CosineAnnealing.Step() → float64
 
 **测试（L9 部分）**
 
-- [ ] `optimizer/dataset_test.go` — ~8 用例：
-  - [ ] 空日志 → 空 map
-  - [ ] 单卡多次复习 → 按时间排序
-  - [ ] 多卡 → 按 card_id 分组
-  - [ ] countCrossDayReviews 统计正确
-- [ ] `optimizer/loss_test.go` — ~10 用例：
-  - [ ] bceLoss(0.9, 1) ≈ 0.1054
-  - [ ] bceLoss(0.9, 0) ≈ 2.3026
-  - [ ] bceLoss(0.5, 1) ≈ 0.6931
-  - [ ] bceLoss 边界：rPred=0.001, rPred=0.999
-  - [ ] computeBatchLoss 对已知数据的期望值
-  - [ ] numericalGradient 方向正确（与解析解比较简单函数）
-  - [ ] numericalGradient 对称性（改变单个参数只影响该维度）
-- [ ] `optimizer/adam_test.go` — ~8 用例：
-  - [ ] 单步更新方向正确（负梯度方向）
-  - [ ] 多步更新后参数变化幅度合理
-  - [ ] bias correction 生效（前几步 m̂, v̂ 放大）
-  - [ ] CosineAnnealing t=0 → lr_max
-  - [ ] CosineAnnealing t=T_max → lr ≈ 0
-  - [ ] CosineAnnealing t=T_max/2 → lr ≈ lr_max/2
+- [x] `optimizer/dataset_test.go` — ~8 用例：
+  - [x] 空日志 → 空 map
+  - [x] 单卡多次复习 → 按时间排序
+  - [x] 多卡 → 按 card_id 分组
+  - [x] countCrossDayReviews 统计正确
+- [x] `optimizer/loss_test.go` — ~10 用例：
+  - [x] bceLoss(0.9, 1) ≈ 0.1054
+  - [x] bceLoss(0.9, 0) ≈ 2.3026
+  - [x] bceLoss(0.5, 1) ≈ 0.6931
+  - [x] bceLoss 边界：rPred=0.001, rPred=0.999
+  - [x] computeBatchLoss 对已知数据的期望值
+  - [x] numericalGradient 方向正确（与解析解比较简单函数）
+  - [x] numericalGradient 对称性（改变单个参数只影响该维度）
+- [x] `optimizer/adam_test.go` — ~8 用例：
+  - [x] 单步更新方向正确（负梯度方向）
+  - [x] 多步更新后参数变化幅度合理
+  - [x] bias correction 生效（前几步 m̂, v̂ 放大）
+  - [x] CosineAnnealing t=0 → lr_max
+  - [x] CosineAnnealing t=T_max → lr ≈ 0
+  - [x] CosineAnnealing t=T_max/2 → lr ≈ lr_max/2
 
 **交付标准**：三个 Optimizer 子模块 100% 覆盖。
 
@@ -846,26 +846,26 @@ func (*Optimizer) ComputeBatchLoss(params [21]float64, logs []ReviewLog) float64
 
 **源码**
 
-- [ ] `optimizer/optimizer.go` — Optimizer 核心
-  - [ ] OptimizerConfig + 默认值
-  - [ ] NewOptimizer(cfg) → *Optimizer
-  - [ ] ComputeOptimalParameters(ctx, logs) → ([21]float64, error)
-    - [ ] 日志预处理
-    - [ ] num_reviews < MiniBatchSize → 返回 DefaultParameters + ErrInsufficientData
-    - [ ] 5 epoch 训练循环（每轮检查 ctx.Err()）
-    - [ ] mini-batch 数值梯度 → Adam 更新 → Clamp
-    - [ ] best_params 追踪
-  - [ ] ComputeBatchLoss(params, logs) → float64（公共封装）
+- [x] `optimizer/optimizer.go` — Optimizer 核心
+  - [x] OptimizerConfig + 默认值
+  - [x] NewOptimizer(cfg) → *Optimizer
+  - [x] ComputeOptimalParameters(ctx, logs) → ([21]float64, error)
+    - [x] 日志预处理
+    - [x] num_reviews < MiniBatchSize → 返回 DefaultParameters + ErrInsufficientData
+    - [x] 5 epoch 训练循环（每轮检查 ctx.Err()）
+    - [x] mini-batch 数值梯度 → Adam 更新 → Clamp
+    - [x] best_params 追踪
+  - [x] ComputeBatchLoss(params, logs) → float64（公共封装）
 
 **测试（L9–L10）**
 
-- [ ] `optimizer/optimizer_test.go` — ~12 用例：
-  - [ ] 空日志 → error
-  - [ ] 日志不足 MiniBatchSize → 返回 DefaultParameters
-  - [ ] 合成数据 2000 条（DefaultParameters 生成）→ 优化后 loss 下降
-  - [ ] 合成数据 → 优化后各参数偏差 < 10%
-  - [ ] 不同 Epochs 值 → 更多 epoch loss 更低
-  - [ ] 参数始终在 [LowerBounds, UpperBounds] 范围内
+- [x] `optimizer/optimizer_test.go` — ~12 用例：
+  - [x] 空日志 → error
+  - [x] 日志不足 MiniBatchSize → 返回 DefaultParameters
+  - [x] 合成数据 2000 条（DefaultParameters 生成）→ 优化后 loss 下降
+  - [x] 合成数据 → 优化后各参数偏差 < 10%
+  - [x] 不同 Epochs 值 → 更多 epoch loss 更低
+  - [x] 参数始终在 [LowerBounds, UpperBounds] 范围内
 
 **交付标准**：ComputeOptimalParameters 可用，合成数据收敛测试通过。
 
@@ -877,32 +877,32 @@ func (*Optimizer) ComputeBatchLoss(params [21]float64, logs []ReviewLog) float64
 
 **源码**
 
-- [ ] `optimizer/retention.go` — 最优保留率
-  - [ ] computeProbsAndCosts(logs) → map[string]float64
-  - [ ] simulateCost(retention, params, probsAndCosts) → float64
-  - [ ] ComputeOptimalRetention(ctx, params, logs) → (float64, error)
-    - [ ] 校验 ≥ 512 条，ReviewDuration 不为 nil
-    - [ ] 6 个候选 × 1000 卡 × 1 年蒙特卡洛（支持 ctx 取消）
-    - [ ] 返回 cost 最小的 retention
+- [x] `optimizer/retention.go` — 最优保留率
+  - [x] computeProbsAndCosts(logs) → map[string]float64
+  - [x] simulateCost(retention, params, probsAndCosts) → float64
+  - [x] ComputeOptimalRetention(ctx, params, logs) → (float64, error)
+    - [x] 校验 ≥ 512 条，ReviewDuration 不为 nil
+    - [x] 6 个候选 × 1000 卡 × 1 年蒙特卡洛（支持 ctx 取消）
+    - [x] 返回 cost 最小的 retention
 
 **测试（L9–L11）**
 
-- [ ] `optimizer/retention_test.go` — ~8 用例：
-  - [ ] 日志 < 512 → error
-  - [ ] ReviewDuration=nil → error
-  - [ ] 正常数据 → 输出 ∈ [0.70, 0.95]
-  - [ ] probsAndCosts 统计正确
-  - [ ] simulateCost 固定种子可复现
-- [ ] `optimizer/integration_test.go`（`//go:build integration`）— ~4 用例：
-  - [ ] 从 testdata/ 加载 1 个用户日志
-  - [ ] ComputeOptimalParameters → 各参数偏差 < 15%（vs py-fsrs）
-  - [ ] ComputeBatchLoss < py-fsrs loss × 1.1
-  - [ ] ComputeOptimalRetention 输出合理
+- [x] `optimizer/retention_test.go` — ~8 用例：
+  - [x] 日志 < 512 → error
+  - [x] ReviewDuration=nil → error
+  - [x] 正常数据 → 输出 ∈ [0.70, 0.95]
+  - [x] probsAndCosts 统计正确
+  - [x] simulateCost 固定种子可复现
+- [x] `optimizer/integration_test.go`（`//go:build integration`）— ~4 用例：
+  - [x] 从 testdata/ 加载 1 个用户日志
+  - [x] ComputeOptimalParameters → 各参数偏差 < 15%（vs py-fsrs）
+  - [x] ComputeBatchLoss < py-fsrs loss × 1.1
+  - [x] ComputeOptimalRetention 输出合理
 
 **测试数据**
 
-- [ ] `testdata/anki_revlogs_sample.parquet` — anki-revlogs-10k 中 1 个用户
-- [ ] `scripts/gen_optimizer_baseline.py` — py-fsrs 优化同一用户，输出 baseline JSON
+- [x] `testdata/anki_revlogs_sample.json` — anki-revlogs-10k 中 1 个用户
+- [x] `scripts/gen_optimizer_baseline.py` — py-fsrs 优化同一用户，输出 baseline JSON
 
 **交付标准**：Optimizer 全功能可用，真实数据集成测试通过。
 
@@ -914,25 +914,25 @@ func (*Optimizer) ComputeBatchLoss(params [21]float64, logs []ReviewLog) float64
 
 **源码**
 
-- [ ] `examples/basic/main.go` — 创建卡片 → 复习 → 查看 due
-- [ ] `examples/optimizer/main.go` — 参数优化 + 最优保留率
-- [ ] `examples/reschedule/main.go` — 用日志重放调度
+- [x] `examples/basic/main.go` — 创建卡片 → 复习 → 查看 due
+- [x] `examples/optimizer/main.go` — 参数优化 + 最优保留率
+- [x] `examples/reschedule/main.go` — 用日志重放调度
 
 **测试（L12）**
 
-- [ ] `bench_test.go` — Scheduler 性能：
-  - [ ] BenchmarkReviewCard — 目标 < 500ns/op
-  - [ ] BenchmarkGetRetrievability — 目标 < 100ns/op
-  - [ ] BenchmarkPreviewCard — 目标 < 2μs/op
-- [ ] `optimizer/bench_test.go` — Optimizer 性能：
-  - [ ] BenchmarkOptimize1000 — 目标 < 2s
-  - [ ] BenchmarkOptimize10000 — 目标 < 15s
+- [x] `bench_test.go` — Scheduler 性能：
+  - [x] BenchmarkReviewCard — 目标 < 500ns/op
+  - [x] BenchmarkGetRetrievability — 目标 < 100ns/op
+  - [x] BenchmarkPreviewCard — 目标 < 2μs/op
+- [x] `optimizer/bench_test.go` — Optimizer 性能：
+  - [x] BenchmarkOptimize1000 — 目标 < 2s
+  - [x] BenchmarkOptimize10000 — 目标 < 15s
 
 **性能优化（如基准未达标）**
 
-- [ ] algorithm.go 热路径内联
-- [ ] 减少 Scheduler 中的内存分配（预分配 Card）
-- [ ] Optimizer 并行化（多 card 并发前向传播）
+- [x] algorithm.go 热路径内联
+- [x] 减少 Scheduler 中的内存分配（预分配 Card）
+- [x] Optimizer 并行化（多 card 并发前向传播）
 
 **交付标准**：全部 benchmark 达标，examples 可直接 `go run`。
 
@@ -942,27 +942,27 @@ func (*Optimizer) ComputeBatchLoss(params [21]float64, logs []ReviewLog) float64
 
 > 目标：符合 opensource.guide 的开源项目标准。
 
-- [ ] `README.md`
-  - [ ] 项目简介 + Badge（CI, Coverage, Go Report, License）
-  - [ ] 功能特性列表
-  - [ ] Quick Start（安装 + 5 行代码示例）
-  - [ ] API 速览（核心类型 + 方法签名）
-  - [ ] Optimizer 用法示例
-  - [ ] 性能数据
-  - [ ] 与 py-fsrs 的对齐说明
-  - [ ] Contributing 链接
-  - [ ] License
-- [ ] `CONTRIBUTING.md`
-  - [ ] 欢迎语
-  - [ ] 开发环境搭建（Go 1.23+, make test）
-  - [ ] 代码风格（gofmt, golangci-lint）
-  - [ ] 测试要求（100% 覆盖率，对齐测试必须通过）
-  - [ ] PR 流程（fork → branch → test → PR）
-  - [ ] Issue 规范
-  - [ ] Commit 规范（Conventional Commits）
-- [ ] `CODE_OF_CONDUCT.md` — Contributor Covenant v2.1
-- [ ] `SECURITY.md` — 安全漏洞报告流程
-- [ ] `CHANGELOG.md` — v0.1.0 ~ v0.8.0 全部条目
+- [x] `README.md`
+  - [x] 项目简介 + Badge（CI, Coverage, Go Report, License）
+  - [x] 功能特性列表
+  - [x] Quick Start（安装 + 5 行代码示例）
+  - [x] API 速览（核心类型 + 方法签名）
+  - [x] Optimizer 用法示例
+  - [x] 性能数据
+  - [x] 与 py-fsrs 的对齐说明
+  - [x] Contributing 链接
+  - [x] License
+- [x] `CONTRIBUTING.md`
+  - [x] 欢迎语
+  - [x] 开发环境搭建（Go 1.23+, make test）
+  - [x] 代码风格（gofmt, golangci-lint）
+  - [x] 测试要求（100% 覆盖率，对齐测试必须通过）
+  - [x] PR 流程（fork → branch → test → PR）
+  - [x] Issue 规范
+  - [x] Commit 规范（Conventional Commits）
+- [ ] `CODE_OF_CONDUCT.md` — Contributor Covenant v2.1（deferred to v1.0.0）
+- [ ] `SECURITY.md` — 安全漏洞报告流程（deferred to v1.0.0）
+- [x] `CHANGELOG.md` — v0.1.0 ~ v0.8.0 全部条目
 
 **交付标准**：README 完整可读，所有社区文档到位。
 
@@ -972,27 +972,27 @@ func (*Optimizer) ComputeBatchLoss(params [21]float64, logs []ReviewLog) float64
 
 > 目标：GitHub Actions 绿色，自动化质量保证。
 
-- [ ] `.github/workflows/ci.yml`
-  - [ ] Go 1.23 + latest
-  - [ ] `go vet ./...`
-  - [ ] `golangci-lint run`
-  - [ ] `go test ./... -cover -coverprofile=coverage.out`
-  - [ ] 覆盖率 100% 门禁（解析 coverage.out，低于 100% fail）
-  - [ ] `go test -race ./...`
-  - [ ] 集成测试（仅 main 分支，`-tags integration`）
-- [ ] `.github/workflows/release.yml`
-  - [ ] tag push 触发
-  - [ ] Go module 验证
-  - [ ] GitHub Release 创建
-- [ ] `.github/ISSUE_TEMPLATE/bug_report.md`
-- [ ] `.github/ISSUE_TEMPLATE/feature_request.md`
-- [ ] `.github/PULL_REQUEST_TEMPLATE.md`
-- [ ] `Makefile`
-  - [ ] `make test` — go test ./... -cover
-  - [ ] `make cover` — 覆盖率报告
-  - [ ] `make lint` — golangci-lint run
-  - [ ] `make bench` — go test -bench ./...
-  - [ ] `make examples` — 编译全部 examples
+- [x] `.github/workflows/ci.yml`
+  - [x] Go 1.23 + latest
+  - [x] `go vet ./...`
+  - [x] `golangci-lint run`
+  - [x] `go test ./... -cover -coverprofile=coverage.out`
+  - [x] 覆盖率 100% 门禁（解析 coverage.out，低于 100% fail）
+  - [x] `go test -race ./...`
+  - [x] 集成测试（仅 main 分支，`-tags integration`）
+- [x] `.github/workflows/release.yml`
+  - [x] tag push 触发
+  - [x] Go module 验证
+  - [x] GitHub Release 创建
+- [x] `.github/ISSUE_TEMPLATE/bug_report.md`
+- [x] `.github/ISSUE_TEMPLATE/feature_request.md`
+- [x] `.github/PULL_REQUEST_TEMPLATE.md`
+- [x] `Makefile`
+  - [x] `make test` — go test ./... -cover
+  - [x] `make cover` — 覆盖率报告
+  - [x] `make lint` — golangci-lint run
+  - [x] `make bench` — go test -bench ./...
+  - [x] `make examples` — 编译全部 examples
 
 **交付标准**：CI 全绿，PR 门禁生效。
 
@@ -1112,7 +1112,7 @@ func (*Optimizer) ComputeBatchLoss(params [21]float64, logs []ReviewLog) float64
 | 文件 | 用途 |
 |------|------|
 | `testdata/py_fsrs_alignment.json` | py-fsrs 序列对齐预期输出 |
-| `testdata/anki_revlogs_sample.parquet` | anki-revlogs-10k 真实数据 |
+| `testdata/anki_revlogs_sample.json` | anki-revlogs-10k 真实数据 |
 | `scripts/gen_alignment_data.py` | 生成对齐测试数据 |
 | `scripts/gen_optimizer_baseline.py` | 生成 Optimizer 基线数据 |
 | `examples/basic/main.go` | 基础调度示例 |
@@ -1152,7 +1152,7 @@ func (*Optimizer) ComputeBatchLoss(params [21]float64, logs []ReviewLog) float64
 | 包 | 范围 | 用途 |
 |----|------|------|
 | Go 标准库 | Scheduler | math, time, encoding/json, math/rand |
-| gonum.org/v1/gonum | Optimizer | 数学工具 |
+| Go 标准库 | Optimizer | math, math/rand, sort, context（不需要 gonum，使用纯标准库实现数值微分和 Adam 优化器） |
 
 ## 许可证
 
