@@ -167,15 +167,15 @@ retention, err := opt.ComputeOptimalRetention(ctx, params, logs)
 
 ## Performance
 
-Benchmarks run on Apple M-series silicon. All targets met.
+Environment: Mac Mini (Apple M4 Pro, 64 GB RAM, 2T SSD), macOS 26.2, Go 1.26 darwin/arm64
 
 | Benchmark | Result | Target |
 |-----------|--------|--------|
-| ReviewCard | 182 ns/op | < 500 ns |
-| GetRetrievability | 26 ns/op | < 100 ns |
-| PreviewCard | 814 ns/op | < 2 us |
-| Optimize1000 | 0.50 s | < 2 s |
-| Optimize10000 | 4.61 s | < 15 s |
+| ReviewCard | 181 ns/op, 80 B, 6 allocs | < 500 ns |
+| GetRetrievability | 24 ns/op, 0 B, 0 allocs | < 100 ns |
+| PreviewCard | 820 ns/op, 1112 B, 31 allocs | < 2 us |
+| Optimize1000 | 0.49 s | < 2 s |
+| Optimize10000 | 4.59 s | < 15 s |
 
 ## Alignment with py-fsrs
 
