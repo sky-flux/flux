@@ -6,8 +6,8 @@ test:
 	go test ./... -cover
 
 cover:
-	go test -coverprofile=coverage.out ./...
-	go tool cover -func=coverage.out
+	go test -coverprofile=coverage.txt ./...
+	go tool cover -func=coverage.txt
 
 lint:
 	golangci-lint run ./...

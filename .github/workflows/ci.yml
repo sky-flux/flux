@@ -27,14 +27,14 @@ jobs:
         uses: golangci/golangci-lint-action@v9
 
       - name: Test
-        run: go test ./... -cover -coverprofile=coverage.out -race
+        run: go test ./... -cover -coverprofile=coverage.txt -race
 
       - name: Upload coverage
         if: matrix.go-version == 'stable'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.out
+          files: coverage.txt
           fail_ci_if_error: false
 
       - name: Coverage gate
