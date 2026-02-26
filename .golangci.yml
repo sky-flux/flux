@@ -1,24 +1,27 @@
+version: "2"
+
 linters:
   enable:
     - errorlint
     - gocritic
-    - goimports
     - misspell
     - prealloc
     - unconvert
     - unparam
+  settings:
+    gocritic:
+      enabled-checks:
+        - appendAssign
+        - dupBranchBody
+        - dupCase
+        - equalFold
+        - sloppyLen
+    misspell:
+      locale: US
+  exclusions:
+    paths:
+      - examples
 
-linters-settings:
-  gocritic:
-    enabled-checks:
-      - appendAssign
-      - dupBranchBody
-      - dupCase
-      - equalFold
-      - sloppyLen
-  misspell:
-    locale: US
-
-issues:
-  exclude-dirs:
-    - examples
+formatters:
+  enable:
+    - goimports
