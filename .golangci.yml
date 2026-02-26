@@ -1,0 +1,24 @@
+linters:
+  enable:
+    - errorlint
+    - gocritic
+    - goimports
+    - misspell
+    - prealloc
+    - unconvert
+    - unparam
+
+linters-settings:
+  gocritic:
+    enabled-checks:
+      - appendAssign
+      - dupBranchBody
+      - dupCase
+      - equalFold
+      - sloppyLen
+  misspell:
+    locale: US
+
+issues:
+  exclude-dirs:
+    - examples

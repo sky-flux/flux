@@ -29,6 +29,13 @@ jobs:
       - name: Test
         run: go test ./... -cover -coverprofile=coverage.out -race
 
+      - name: Upload coverage
+        if: matrix.go-version == 'stable'
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage.out
+          fail_ci_if_error: false
+
       - name: Coverage gate
         run: |
           # Verify 100% coverage for library packages (exclude examples).
