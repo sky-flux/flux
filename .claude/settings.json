@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"\nimport sys, json, re\n\ndata = json.load(sys.stdin)\ncmd = data.get('tool_input', {}).get('command', '')\n\nif 'git commit' not in cmd:\n    sys.exit(0)\n\n# All gitmoji emojis from https://gitmoji.dev/\ngitmojis = [\n    '🎨','⚡','🔥','🐛','🚑','✨','📝','🚀','💄','🎉',\n    '✅','🔒','🔐','🔖','🚨','🚧','💚','⬇️','⬆️','📌',\n    '👷','📈','♻️','➕','➖','🔧','🔨','🌐','✏️','💩',\n    '⏪','🔀','📦','👽','🚚','📄','💥','🍱','♿','💡',\n    '🍻','💬','🗃️','🔊','🔇','👥','🚸','🏗️','📱','🤡',\n    '🥚','🙈','📸','⚗️','🔍','🏷️','🌱','🚩','🥅','💫',\n    '🗑️','🛂','🩹','🧐','⚰️','🧪','👔','🩺','🧱','🧑\\u200d💻',\n    '💸','🧵','🦺','✈️','🦖','🔄'\n]\n\n# Check if commit message contains any gitmoji\nfound = False\nfor emoji in gitmojis:\n    if emoji in cmd:\n        found = True\n        break\n\nif not found:\n    print('COMMIT MESSAGE ERROR: Must start with a gitmoji emoji.')\n    print('See https://gitmoji.dev/ for the full list.')\n    print('Examples: ✨ add feature | 🐛 fix bug | 📝 update docs | ♻️ refactor code')\n    sys.exit(2)\n\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"\nimport sys, json\n\ndata = json.load(sys.stdin)\n\ntool = data.get('tool_name', '')\npath = ''\nif tool == 'Edit':\n    path = data.get('tool_input', {}).get('file_path', '')\nelif tool == 'Write':\n    path = data.get('tool_input', {}).get('file_path', '')\n\nif not path.endswith('.go'):\n    sys.exit(0)\n\nimport subprocess\nresult = subprocess.run(['go', 'vet', './...'], capture_output=True, text=True)\nif result.returncode != 0:\n    print('go vet failed:')\n    print(result.stderr)\n    sys.exit(1)\nelse:\n    print('go vet: ok')\n\""
+          }
+        ]
+      }
+    ]
+  }
+}

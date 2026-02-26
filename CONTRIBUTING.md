@@ -123,32 +123,54 @@ When opening an issue, please:
 
 ## Commit Convention
 
-Flux uses a combination of **gitmoji** and **Angular-style** commit types. Each commit message should follow this format:
+Flux uses the [gitmoji](https://gitmoji.dev/) convention. Each commit message must start with a gitmoji emoji:
 
 ```
-<emoji> <type>: <short description>
+<gitmoji> <short description>
 ```
 
-### Types
+### Common Gitmoji
 
-| Emoji | Type       | Description                        |
-|-------|------------|------------------------------------|
-| ✨    | `feat:`    | A new feature                      |
-| 🐛    | `fix:`     | A bug fix                          |
-| ⚡    | `perf:`    | A performance improvement          |
-| ✅    | `test:`    | Adding or updating tests           |
-| 📝    | `docs:`    | Documentation changes              |
-| 🔄    | `refactor:`| Code refactoring (no feature/fix)  |
+| Emoji | Description                              |
+|-------|------------------------------------------|
+| ✨    | Introduce new features                   |
+| 🐛    | Fix a bug                                |
+| 🚑    | Critical hotfix                          |
+| ⚡    | Improve performance                      |
+| ♻️    | Refactor code                            |
+| ✅    | Add, update, or pass tests               |
+| 📝    | Add or update documentation              |
+| 🔧    | Add or update configuration files        |
+| 🔨    | Add or update development scripts        |
+| ⬆️    | Upgrade dependencies                     |
+| 👷    | Add or update CI build system            |
+| 💚    | Fix CI build                             |
+| 🚨    | Fix compiler / linter warnings           |
+| 🎉    | Begin a project / initial commit         |
+| 🔖    | Release / version tags                   |
+| 🔒    | Fix security or privacy issues           |
+| 🚚    | Move or rename resources                 |
+| 🔥    | Remove code or files                     |
+| 🩹    | Simple fix for a non-critical issue      |
+| 🎨    | Improve structure / format of the code   |
+| 💡    | Add or update comments in source code    |
+| 🏷️    | Add or update types                      |
+| 💥    | Introduce breaking changes               |
+
+For the full list, see https://gitmoji.dev/.
 
 ### Examples
 
 ```
-✨ feat: add gradient clipping to optimizer
-🐛 fix: resolve nil pointer in tensor reshape
-⚡ perf: vectorize matrix multiplication kernel
-✅ test: add coverage for edge cases in loss functions
-📝 docs: update API reference for v0.8
-🔄 refactor: simplify computation graph traversal
+✨ add gradient clipping to optimizer
+🐛 resolve nil pointer in tensor reshape
+⚡ vectorize matrix multiplication kernel
+✅ add coverage for edge cases in loss functions
+📝 update API reference for v0.8
+♻️ simplify computation graph traversal
+👷 add CodeQL security scanning workflow
+⬆️ upgrade codeql-action v3 → v4
+💚 fix CI matrix cancellation on partial failure
 ```
 
 Keep the subject line under 72 characters. Use the body of the commit message for additional context when necessary.
