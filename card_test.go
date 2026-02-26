@@ -187,10 +187,10 @@ func TestCardJSONNilFields(t *testing.T) {
 	s := string(data)
 	// Nil pointer fields should serialize as null.
 	expected := map[string]bool{
-		`"stability":null`:  true,
-		`"difficulty":null`: true,
+		`"stability":null`:   true,
+		`"difficulty":null`:  true,
 		`"last_review":null`: true,
-		`"step":null`:       true,
+		`"step":null`:        true,
 	}
 	for substr, shouldContain := range expected {
 		contains := containsSubstr(s, substr)

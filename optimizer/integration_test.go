@@ -15,10 +15,10 @@ import (
 
 // sampleEntry matches the JSON format produced by gen_optimizer_baseline.py.
 type sampleEntry struct {
-	CardID         int64   `json:"card_id"`
-	Rating         int     `json:"rating"`
-	ReviewDatetime string  `json:"review_datetime"`
-	DurationMS     *int    `json:"review_duration_ms,omitempty"`
+	CardID         int64  `json:"card_id"`
+	Rating         int    `json:"rating"`
+	ReviewDatetime string `json:"review_datetime"`
+	DurationMS     *int   `json:"review_duration_ms,omitempty"`
 }
 
 type baseline struct {

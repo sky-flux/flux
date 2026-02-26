@@ -12,11 +12,11 @@ import "math"
 //	v̂[i] = v[i] / (1 - β2^t)
 //	w[i] = w[i] - lr · m̂[i] / (√v̂[i] + ε)
 type Adam struct {
-	lr   float64
+	lr           float64
 	beta1, beta2 float64
-	eps  float64
-	m, v [21]float64
-	step int
+	eps          float64
+	m, v         [21]float64
+	step         int
 }
 
 // NewAdam creates an Adam optimizer with the given learning rate.

@@ -16,7 +16,7 @@ const (
 )
 
 var (
-	stateNames = [...]string{Learning: "Learning", Review: "Review", Relearning: "Relearning"}
+	stateNames  = [...]string{Learning: "Learning", Review: "Review", Relearning: "Relearning"}
 	stateByName = map[string]State{
 		"Learning":   Learning,
 		"Review":     Review,

@@ -288,7 +288,7 @@ func reviewCard(t *testing.T) Card {
 	}
 }
 
-func ptrF(f float64) *float64 { return &f }
+func ptrF(f float64) *float64     { return &f }
 func ptrT(t time.Time) *time.Time { return &t }
 
 func TestReviewCrossDayGood(t *testing.T) {
@@ -406,7 +406,7 @@ func TestRelearningAgain(t *testing.T) {
 		Stability:  ptrF(3.0),
 		Difficulty: ptrF(5.0),
 		Due:        t0,
-		LastReview:  ptrT(t0),
+		LastReview: ptrT(t0),
 	}
 	c, _ := s.ReviewCard(card, Again, t0.Add(5*time.Minute))
 
@@ -430,7 +430,7 @@ func TestRelearningGoodGraduate(t *testing.T) {
 		Stability:  ptrF(3.0),
 		Difficulty: ptrF(5.0),
 		Due:        t0,
-		LastReview:  ptrT(t0),
+		LastReview: ptrT(t0),
 	}
 	c, _ := s.ReviewCard(card, Good, t0.Add(10*time.Minute))
 
