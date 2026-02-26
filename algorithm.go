@@ -66,8 +66,8 @@ func (a *algo) shortTermStability(stability float64, r Rating) float64 {
 // nextDifficulty computes the updated difficulty after a review.
 // ΔD = -w[6] * (G - 3)
 // D' = D + (10 - D) * ΔD / 9     (linear damping)
-// D'' = w[7]*D₀(Easy) + (1-w[7])*D'  (mean reversion)
-// D'' = clamp_d(D'')
+// D” = w[7]*D₀(Easy) + (1-w[7])*D'  (mean reversion)
+// D” = clamp_d(D”)
 func (a *algo) nextDifficulty(difficulty float64, r Rating) float64 {
 	deltaD := -a.w[6] * (float64(r) - 3)
 	dPrime := difficulty + (10-difficulty)*deltaD/9

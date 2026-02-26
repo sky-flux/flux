@@ -17,7 +17,7 @@ const (
 )
 
 var (
-	ratingNames = [...]string{Again: "Again", Hard: "Hard", Good: "Good", Easy: "Easy"}
+	ratingNames  = [...]string{Again: "Again", Hard: "Hard", Good: "Good", Easy: "Easy"}
 	ratingByName = map[string]Rating{
 		"Again": Again,
 		"Hard":  Hard,

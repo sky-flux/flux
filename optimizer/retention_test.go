@@ -2,6 +2,7 @@ package optimizer
 
 import (
 	"context"
+	"errors"
 	"math"
 	"testing"
 	"time"
@@ -131,7 +132,7 @@ func TestComputeOptimalRetentionInsufficientLogs(t *testing.T) {
 		}
 	}
 	_, err := o.ComputeOptimalRetention(context.Background(), flux.DefaultParameters, logs)
-	if err != ErrInsufficientLogs {
+	if !errors.Is(err, ErrInsufficientLogs) {
 		t.Errorf("got error %v, want ErrInsufficientLogs", err)
 	}
 }
@@ -152,7 +153,7 @@ func TestComputeOptimalRetentionMissingDuration(t *testing.T) {
 	logs[300].ReviewDuration = nil
 
 	_, err := o.ComputeOptimalRetention(context.Background(), flux.DefaultParameters, logs)
-	if err != ErrMissingDuration {
+	if !errors.Is(err, ErrMissingDuration) {
 		t.Errorf("got error %v, want ErrMissingDuration", err)
 	}
 }

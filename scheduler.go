@@ -150,8 +150,8 @@ func (s *Scheduler) RescheduleCard(card Card, logs []ReviewLog) (Card, error) {
 type schedulerJSON struct {
 	Parameters       [21]float64 `json:"parameters"`
 	DesiredRetention float64     `json:"desired_retention"`
-	LearningSteps    []int64     `json:"learning_steps"`    // nanoseconds
-	RelearningSteps  []int64     `json:"relearning_steps"`  // nanoseconds
+	LearningSteps    []int64     `json:"learning_steps"`   // nanoseconds
+	RelearningSteps  []int64     `json:"relearning_steps"` // nanoseconds
 	MaximumInterval  int         `json:"maximum_interval"`
 	DisableFuzzing   bool        `json:"disable_fuzzing"`
 }

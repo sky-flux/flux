@@ -9,13 +9,6 @@ linters:
     - unconvert
     - unparam
   settings:
-    gocritic:
-      enabled-checks:
-        - appendAssign
-        - dupBranchBody
-        - dupCase
-        - equalFold
-        - sloppyLen
     misspell:
       locale: US
   exclusions:
